@@ -7,6 +7,7 @@ import {
   RC_KEYS,
   subscribeRCUpdates,
 } from './remoteConfig.modular'; // แบบ modular 
+import { versionLabel } from './versionInfo';
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -51,6 +52,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text>min_version_app = {required}</Text>
+      <Text>App version: {versionLabel}</Text>
       <StatusBar style="auto" />
     </View>
   );
