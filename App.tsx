@@ -12,6 +12,8 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [required, setRequired] = useState(0);
 
+  console.log('RENDER APP');
+
   useEffect(() => {
     let unsub: undefined | (() => void);
     (async () => {
