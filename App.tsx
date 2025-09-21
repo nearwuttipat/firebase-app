@@ -15,22 +15,32 @@ export default function App() {
   console.log('RENDER APP');
 
   useEffect(() => {
-    let unsub: undefined | (() => void);
-    (async () => {
-      await initRemoteConfig();                // init แบบ modular
-      setRequired(rcNumber(RC_KEYS.MIN_VERSION_APP, 1));
-      setReady(true);
+  let unsub: undefined | (() => void);
+  let didCancel = false;
 
-      // อัปเดตอัตโนมัติเมื่อ Console publish ค่าใหม่ (optional)
-      unsub = subscribeRCUpdates(() => {
-        setRequired(rcNumber(RC_KEYS.MIN_VERSION_APP, 1));
-      });
-    })();
+  // hard timeout กันค้าง
+  const t = setTimeout(() => !didCancel && setReady(true), 8000);
 
-    return () => {
-      if (unsub) unsub();
-    };
-  }, []);
+  (async () => {
+    await initRemoteConfig();
+    const value = rcNumber(RC_KEYS.MIN_VERSION_APP, 1);
+    !didCancel && setRequired(value);
+    !didCancel && setReady(true);
+    unsub = subscribeRCUpdates(() => {
+      !didCancel && setRequired(rcNumber(RC_KEYS.MIN_VERSION_APP, 1));
+    });
+  })().catch(e => {
+    console.error('[App] init fatal:', e);
+    !didCancel && setReady(true);
+  });
+
+  return () => {
+    didCancel = true;
+    clearTimeout(t);
+    if (unsub) unsub();
+  };
+}, []);
+
 
   if (!ready) {
     return (
